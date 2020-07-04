@@ -1,6 +1,6 @@
 const WebTorrent = require('webtorrent');
-const progress = require('cli-progress');
 const chalk = require('chalk');
+const downloadBar = require('../downloadBar');
 
 module.exports = async (ID, path) => {
 
@@ -8,17 +8,13 @@ module.exports = async (ID, path) => {
 
 		const client = new WebTorrent();
 
-		client.add(ID, { path }, torrent => {
+		client.add( ID, { path }, torrent => {
+
+			console.log(`\nDownloading ${torrent.name}\n`);
 
 			const downloadedFiles = torrent.files;
 
-			const downloadBar = new progress.SingleBar({
-
-				format: '{bar} | {percentage}% || {value}/{total}Mbs || Speed: {speed}'
-
-			}, progress.Presets.shades_classic);
-
-			downloadBar.start( Math.floor(torrent.length / 1e+6), 0, { speed: 'N/A' } );
+			downloadBar.start(Math.floor(torrent.length / 1e+6), 0);
 
 			torrent.on('download', b => {
 
@@ -30,9 +26,10 @@ module.exports = async (ID, path) => {
 
 			torrent.on('done', () => {
 
+				downloadBar.update(Math.floor(torrent.length / 1e+6))
 				downloadBar.stop();
 
-				console.log('Finished!');
+				console.log('\nFinished!');
 
 				torrent.destroy();
 				client.destroy();
