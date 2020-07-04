@@ -1,43 +1,29 @@
-const inquirer = require('inquirer');
-const fetchTorrents = require('./utils/torrent/fetch');
-const downloadTorrent = require('./utils/torrent/download');
-
-function promptForTorrents(torrents) {
-
-	return inquirer.prompt([{
-
-		type: 'rawlist',
-		name: 'selectedTorrent',
-		message: 'Select your movie (ordered by peers/seeds):',
-		choices: torrents.map((t, i) => {
-
-			return { name: t.title, value: i };
-		})
-
-	}])
-
-
-	.then(answers => torrents[answers.selectedTorrent]);
-
-};
+const downloadTorrent = require('./utils/torrent/main');
+const downloadSub = require('./utils/sub/main');
+const getTorrentInfo = require('./utils/torrent/main');
+const movieExtensionsRegex = require('./utils/movieExtensionsRegex');
 
 module.exports = async options => {
 
-	const { query, action, path, filter, downloadSub, subLanguage } = options;
+	const { query, action, downloadPath, tokensToFilter, mustDownloadSub, subLanguage } = options;
 
 	if (action === 'download') {
 
-		const torrents = await fetchTorrents(query);
+		const downloadedFiles = await downloadTorrent(query, downloadPath, tokensToFilter);
 
-		const selectedTorrent = await promptForTorrents(torrents);
+		if (!mustDownloadSub) return Promise.resolve();
 
-		const torrentID = selectedTorrent.magnet || selectedTorrent.link;
+		if (downloadedFiles.some(file => /\.srt$/.test(file))) return Promise.resolve();
 
-		const downloadedFiles = await downloadTorrent(torrentID, path);
+		const movieFile = downloadedFiles
+			.filter(file => movieExtensionsRegex
+				.some(extension => extension.test(file.name)))[0];
 
-		console.log(selectedTorrent);
+		const movieFilePath = downloadPath + '/' + movieFile.path;
+
+		await downloadSub(movieFilePath, subLanguage);
 
 	};
 
-	return;
+	return Promise.resolve();
 }
