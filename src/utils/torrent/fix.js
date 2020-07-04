@@ -1,12 +1,12 @@
-module.exports = (torrents, filter) => {
+module.exports = (torrents, tokensToFilter) => {
 
-	if (filter) {
+	if (tokensToFilter) {
 
-		torrents.filter(t => {
+		torrents = torrents.filter(t => {
 
 			let mappedTitle = t.title.split(/[\W]+/).map(w => w.toLowerCase());
 
-			return filter.every(f => mappedTitle.includes(f));
+			return tokensToFilter.every(f => mappedTitle.includes(f));
 		})
 	};
 
