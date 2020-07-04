@@ -20,11 +20,11 @@ function parseOptions(argv) {
 	);
 
 	return {
-		filter: options['-f'],
+		tokensToFilter: options['-f'] ? options['-f'].split(' ') : null,
 		action: options['-i'] ? 'getInfo' : 'download',
-		downloadSub: options['-s'] || false,
-		subLanguage: options['-l'] || [ 'eng', 'pob' ],
-		path: options['-p'] || require('os').homedir() + '/Downloads/'
+		mustDownloadSub: options['-s'] || false,
+		subLanguage: options['-l'] || /*[ */'eng'/*, 'pob' ]*/,
+		downloadPath: options['-p'] || require('os').homedir() + '/Downloads'
 	};
 };
 
@@ -33,7 +33,7 @@ function promptForQuery() {
 	return inquirer.prompt([{
 
 		name: 'query',
-		message: 'Query:',
+		message: 'Which movie?',
 		validate: input => /\w/.test(input)
 	
 	}])
@@ -50,6 +50,8 @@ module.exports = async args => {
 
 	let options = parseOptions(argv);
 
+	let query = argv.filter(a => a.indexOf())
+
 	if (argv[0] &&
 		argv[0].indexOf('-') !== 0) {
 
@@ -59,6 +61,6 @@ module.exports = async args => {
 
 	if (!options.query) options.query = await promptForQuery();
 
-	return movies(options);	
+	return movies(options);
 
 };
