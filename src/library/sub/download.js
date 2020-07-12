@@ -1,5 +1,5 @@
-const fetch = require('./fetch');
-const download = require('./download');
+const fetch = require('../../helpers/sub/fetch');
+const download = require('../../helpers/sub/download');
 
 module.exports = async (movieFilePath, subLanguage) => {
 

@@ -10,7 +10,7 @@ module.exports = (torrents, tokensToFilter) => {
 		})
 	};
 
-	torrents.sort((t1, t2) => (t2.peers + t2.seeds) - (t1.peers + t2.seeds));
+	torrents.sort((t1, t2) => (t2.peers + t2.seeds) - (t1.peers + t1.seeds));
 
 	return torrents;
 };

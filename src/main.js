@@ -1,7 +1,8 @@
-const downloadTorrent = require('./utils/torrent/main');
-const downloadSub = require('./utils/sub/main');
-const getTorrentInfo = require('./utils/torrent/main');
-const movieExtensionsRegex = require('./utils/movieExtensionsRegex');
+const downloadTorrent = require('./library/torrent/download');
+const downloadSub = require('./library/sub/download');
+const seedTorrent = require('./library/torrent/seed');
+// const getMovieInfo = require('./utils/torrent/main');
+const movieExtensionsRegex = require('./helpers/sub/movieExtensionsRegex');
 
 module.exports = async options => {
 
@@ -22,6 +23,17 @@ module.exports = async options => {
 		const movieFilePath = downloadPath + '/' + movieFile.path;
 
 		await downloadSub(movieFilePath, subLanguage);
+
+	};
+
+	if (action === 'seed') {
+
+		return seedTorrent();
+
+	};
+
+	if (action === 'getInfo') {
+
 
 	};
 

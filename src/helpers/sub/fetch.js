@@ -6,7 +6,7 @@ const OpenSubtitles = new OS({
     ssl: true
 });
 
-const ISO3to2 = require('../ISO3to2');
+const ISO3to2 = require('./ISO3to2');
 
 module.exports = async (filePath, languageISO3) => {
 

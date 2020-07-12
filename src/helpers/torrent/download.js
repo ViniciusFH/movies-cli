@@ -1,6 +1,8 @@
 const WebTorrent = require('webtorrent');
 const chalk = require('chalk');
-const downloadBar = require('../downloadBar');
+const downloadBar = require('../cli/downloadBar');
+const parseBytes = require('../utils/parseBytes');
+const saveTorrentPath = require('../../helpers/torrent/torrentsPath').save;
 
 module.exports = async (ID, path) => {
 
@@ -12,13 +14,18 @@ module.exports = async (ID, path) => {
 
 			console.log(`\nDownloading ${torrent.name}\n`);
 
+			// Adiciona o torrent a uma lista para facilitar o seed após o download.
+			saveTorrentPath(path + '/' + torrent.name)
+
 			const downloadedFiles = torrent.files;
 
-			downloadBar.start(Math.floor(torrent.length / 1e+6), 0);
+			downloadBar.start(Math.floor(torrent.length / 1e+6), 0, { speed: '0kb/s' });
 
 			torrent.on('download', b => {
 
-				downloadBar.update(Math.floor(torrent.downloaded / 1e+6));
+				let { quantity, measure } = parseBytes(torrent.downloadSpeed);
+
+				downloadBar.update(Math.floor(torrent.downloaded / 1e+6), { speed: `${quantity}${measure}/s` });
 
 				return;
 
