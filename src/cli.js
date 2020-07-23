@@ -6,78 +6,117 @@ function parseOptions(argv) {
 
 	const options = arg(
 		{
-		 '-i': Boolean,
-		 '-f': String,
-		 '-s': Boolean,
-		 '-l': String,
-		 '-p': String,
-		 '--seed': Boolean
+			'-d': Boolean,
+			'-i': Boolean,
+			'-s': Boolean,
+			'-m': Boolean,
+			'-f': String,
+			'-l': String,
+			'-p': String,
+			'--seed': Boolean
 		},
 
 		{
-		 argv,
+			argv,
+			permissive: true
 		}
 	);
 
 	return {
-		tokensToFilter: options['-f'] ? options['-f'].split(' ') : null,
-		getInfo: options['-i'],
-		seed: options['--seed'],
+		download: options['-d'] || false,
+		myMovies: options['-m'] || false,
+		getInfo: options['-i'] || false,
+		seed: options['--seed'] || false,
 		mustDownloadSub: options['-s'] || false,
+		tokensToFilter: options['-f'] ? options['-f'].split(' ') : [],
 		subLanguage: options['-l'] || /*[ */'eng'/*, 'pob' ]*/,
-		downloadPath: options['-p'] || require('os').homedir() + '/Downloads'
+		downloadPath: options['-p'] || require('os').homedir() + '/Downloads',
+		others: options._ || [],
 	};
-};
+}
 
-function promptForQuery() {
+function promptForAction(options) {
+
+	if (options.download ||
+		options.myMovies ||
+		options.getInfo ||
+		options.seed) {
+
+		return options;
+
+
+	};
 
 	return inquirer.prompt([{
 
-		name: 'query',
-		message: 'Which movie?',
-		validate: input => /\w/.test(input)
+		name: 'action',
+		message: 'Select an option:',
+		type: 'list',
+		choices: [
+			{ name: 'Download movie', value: 'download' },
+			{ name: 'Get movie info', value: 'getInfo' },
+			{ name: 'Seed', value: 'seed' },
+			{ name: 'See my movies', value: 'myMovies' }
+		]
 	
 	}])
 
+		.then(results => {
 
-	.then(answers => answers.query);
+			options[results.action] = true;
 
+			return options;
 
-};
+		});
 
-module.exports = async args => {
+}
 
-	let argv = args.slice(2);
+function promptForMovieName(options) {
 
-	let options = parseOptions(argv);
-	
-	if (options.seed && options.getInfo) {
+	const nonOptions = options.others.filter(opt => opt.indexOf('-') !== 0);
 
-		console.log('Arguments -i and --seed are mutually exclusive. Choose one of them.');
+	if (nonOptions.length) {
 
-		return;
+		options.movieName = nonOptions[0];
+
+		return options;
 
 	};
 
-	if (options.seed || options.getInfo) {
+	return inquirer.prompt([{
 
-		options.action = options.seed ? 'seed' : 'getInfo';
+			name: 'movieName',
+			message: 'What movie?',
+			validate: input => /\w/.test(input)
+		
+		}])
+
+		.then(results => {
+
+			options.movieName = results.movieName;
+
+			return options;
+
+		});
+
+}
+
+
+module.exports = async args => {
+
+	const argv = args.slice(2);
+
+	let options = parseOptions(argv);
+
+	options = await promptForAction(options);
+
+	if (options.download || options.getInfo) {
+
+		options = await promptForMovieName(options);
 
 		return movies(options);
 
 	};
-
-	options.action = 'download';
-
-	if (argv[0] &&
-		argv[0].indexOf('-') !== 0) {
-
-		options.query = argv[0];
-	
-	};
-
-
-	if (!options.query) options.query = await promptForQuery();
 
 	return movies(options);
 
