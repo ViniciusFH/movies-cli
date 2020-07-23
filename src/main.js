@@ -1,16 +1,19 @@
 const downloadTorrent = require('./library/torrent/download');
 const downloadSub = require('./library/sub/download');
 const seedTorrent = require('./library/torrent/seed');
+const printMyMovies = require('./library/myMovies/print');
 // const getMovieInfo = require('./utils/torrent/main');
 const movieExtensionsRegex = require('./helpers/sub/movieExtensionsRegex');
 
 module.exports = async options => {
 
-	const { query, action, downloadPath, tokensToFilter, mustDownloadSub, subLanguage } = options;
+	const { downloadPath, tokensToFilter, mustDownloadSub, subLanguage } = options;
 
-	if (action === 'download') {
+	if (options.download) {
 
-		const downloadedFiles = await downloadTorrent(query, downloadPath, tokensToFilter);
+		const { movieName } = options; 
+
+		const downloadedFiles = await downloadTorrent(movieName, downloadPath, tokensToFilter);
 
 		if (!mustDownloadSub) return Promise.resolve();
 
@@ -24,15 +27,21 @@ module.exports = async options => {
 
 		await downloadSub(movieFilePath, subLanguage);
 
-	};
+	}
 
-	if (action === 'seed') {
+	else if (options.myMovies) {
+
+		return printMyMovies();
+
+	}
+
+	else if (options.seed) {
 
 		return seedTorrent();
 
-	};
+	}
 
-	if (action === 'getInfo') {
+	else if (options.getInfo) {
 
 
 	};
