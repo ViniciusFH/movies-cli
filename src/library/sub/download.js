@@ -13,7 +13,6 @@ module.exports = async (movieFilePath, subLanguage) => {
 
 	subPath = movieFilePath.replace(/\.\w+$/, '.' + subInfo.format);
 
-	console.log(subPath);
 	console.log('Downloading...');
 
 	const downloadedSub = await download(subInfo.url, subPath);
