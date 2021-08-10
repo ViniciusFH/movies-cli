@@ -12,19 +12,20 @@ module.exports = async (paths) => {
 
 		paths.forEach(path => {
 
-			client.seed(path, torrent => {
+				client.seed(path, torrent => {
 
-				seedsInfo[path] = multiBar.create(Infinity, 0, { speed: '0kb/s', file: torrent.name });
+					seedsInfo[path] = multiBar.create(Infinity, 0, { speed: '0', file: torrent.name });
 
-				torrent.on('upload', b => {
+					torrent.on('upload', b => {
 
-					let { quantity, measure } = parseBytes(torrent.uploadSpeed);
+						let { quantity, measure } = parseBytes(torrent.uploadSpeed);
 
-					seedsInfo[path].update(b / 1000, { speed: `${quantity}${measure}/s` })
+						seedsInfo[path].update(b / 1000, { speed: `${quantity}${measure}/s` })
 
-				})
+					})
 
-			});
+				});
+
 		});
 
 	});
