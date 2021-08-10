@@ -3,7 +3,7 @@ const chalk = require('chalk');
 
 TorrentSearchApi.enableProvider('ThePirateBay');
 TorrentSearchApi.enableProvider('Yts');
-TorrentSearchApi.enableProvider('KickassTorrents');
+// TorrentSearchApi.enableProvider('KickassTorrents');
 
 module.exports = async query => {
 
