@@ -23,11 +23,11 @@ async function fetch() {
 
 	};
 
-	const torrents = data.split('\n');
+	const torrents = [ ... new Set(data.split('\n')) ];
 
-	torrents.pop();
+	const existingTorrents = torrents.filter(path => fs.existsSync(path));
 
-	return Promise.resolve(torrents);
+	return Promise.resolve(existingTorrents);
 
 };
 
